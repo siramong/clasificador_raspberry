@@ -1,5 +1,11 @@
 # Sistema Inteligente de Clasificación de Materiales
 
+# Intelligent Material Classification System
+
+![Python](https://img.shields.io/badge/Python-3.x-blue)
+![Raspberry Pi](https://img.shields.io/badge/Hardware-RaspberryPi-red)
+![License](https://img.shields.io/badge/License-MIT-green)
+
 ## Descripción
 
 Sistema automático desarrollado en Raspberry Pi para la clasificación de envases utilizando:
