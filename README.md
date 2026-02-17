@@ -1,55 +1,54 @@
 # Sistema Inteligente de Clasificación de Materiales
 
-# Intelligent Material Classification System
-
 ![Python](https://img.shields.io/badge/Python-3.x-blue)
 ![Raspberry Pi](https://img.shields.io/badge/Hardware-RaspberryPi-red)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
-## Descripción
+Sistema automático para clasificación de envases en Raspberry Pi usando sensores, visión artificial y un modelo de Machine Learning, con panel web en tiempo real.
 
-Sistema automático desarrollado en Raspberry Pi para la clasificación de envases utilizando:
+## Características
 
-- Sensores infrarrojos
-- Sensor inductivo
-- Celda de carga HX711
-- Servomotores
-- Visión artificial con OpenCV
-- Modelo de Machine Learning (scikit-learn)
-- Panel web en tiempo real con Flask
+- Detección de presencia con sensores infrarrojos
+- Detección de metal con sensor inductivo
+- Medición de peso con HX711
+- Clasificación plástico/vidrio con OpenCV + modelo scikit-learn
+- Accionamiento de servomotores para desvío de material
+- Panel web de monitoreo y control (`/`)
 
----
+## Requisitos
 
-## Requisitos de Hardware
+### Hardware (producción)
 
-- Raspberry Pi 4B
+- Raspberry Pi (recomendado: 4B)
 - Cámara USB
-- Sensor IR x2
-- Sensor inductivo
-- Celda de carga HX711
+- 2 sensores IR
+- 1 sensor inductivo
+- Celda de carga + módulo HX711
 - Servomotores
 - Fuente de alimentación adecuada
 
----
+### Software
+
+- Python 3.9+
+- `pip`
+- `pigpiod` habilitado en Raspberry Pi
 
 ## Instalación
 
-1. Clonar o copiar el proyecto en la Raspberry Pi.
-
-2. Instalar dependencias:
+1. Clona o copia este proyecto en la Raspberry Pi.
+2. (Opcional) Crea un entorno virtual.
+3. Instala dependencias:
 
 ```bash
 pip3 install -r requirements.txt
-````
+```
 
-3. Activar servicio pigpio:
+4. Habilita y levanta `pigpiod`:
 
 ```bash
 sudo systemctl enable pigpiod
 sudo systemctl start pigpiod
 ```
-
----
 
 ## Ejecución
 
@@ -57,49 +56,75 @@ sudo systemctl start pigpiod
 python3 app.py
 ```
 
-Variables opcionales:
+Luego abre en el navegador:
+
+```text
+http://IP_RASPBERRY:5000
+```
+
+## Variables de entorno
+
+Permiten ajustar cámara y modelo sin tocar código:
+
+- `CAMERA_INDEX`: índice de cámara OpenCV (por defecto `0`)
+- `MODEL_PATH`: ruta al archivo `.pkl` (por defecto `modelo_plastico_vidrio.pkl`)
+
+### Linux/macOS
 
 ```bash
 export CAMERA_INDEX=0
 export MODEL_PATH=modelo_plastico_vidrio.pkl
+python3 app.py
 ```
 
-Acceder desde navegador en:
+### Windows PowerShell
 
+```powershell
+$env:CAMERA_INDEX = "0"
+$env:MODEL_PATH = "modelo_plastico_vidrio.pkl"
+python app.py
 ```
-http://IP_RASPBERRY:5000
-```
 
----
+## Modo desarrollo (sin hardware)
 
-## Estructura del Proyecto
+El proyecto puede ejecutarse fuera de Raspberry Pi en modo simulado:
 
-* `app.py` → servidor web + lógica principal
-* `services/hardware.py` → control de sensores y actuadores
-* `templates/index.html` → panel web
-* `modelo_plastico_vidrio.pkl` → modelo entrenado
-* `requirements.txt` → dependencias
+- Si no están disponibles `RPi.GPIO`, `pigpio` o `hx711`, no se detiene la app.
+- Si no se encuentra el modelo, se aplica un fallback de clasificación.
+- Es útil para validar interfaz web y endpoints.
 
----
+## Endpoints
 
-## Funcionamiento General
+- `GET /` → panel principal
+- `GET /video` → stream MJPEG
+- `GET /estado` → estado actual del sistema (JSON)
+- `POST /toggle` → activa/desactiva la clasificación
 
-1. Sensor IR detecta ingreso de objeto.
+## Estructura del proyecto
+
+- `app.py` → servidor Flask y lógica principal
+- `services/hardware.py` → integración de sensores/actuadores
+- `templates/index.html` → panel web
+- `requirements.txt` → dependencias
+- `modelo_plastico_vidrio.pkl` → modelo entrenado (no incluido por defecto)
+
+## Flujo general
+
+1. Sensor IR de entrada detecta objeto.
 2. Servo de entrada posiciona envase.
-3. Sensor inductivo detecta metal.
-4. Si no es metal:
+3. Sensor inductivo verifica si es metal.
+4. Si no es metal, se captura imagen y se clasifica (plástico/vidrio).
+5. Se acciona el servo correspondiente.
+6. Se actualiza el panel con contadores, material y peso.
 
-   * Se captura imagen.
-   * Se extraen características (brillo y bordes).
-   * Se clasifica con modelo ML.
-5. Se activa servo correspondiente.
-6. Panel web muestra estado en tiempo real.
+## Solución de problemas rápida
 
----
+- Cámara no abre: revisa `CAMERA_INDEX` y permisos de dispositivo.
+- Error con servos: confirma `pigpiod` activo (`systemctl status pigpiod`).
+- Peso incorrecto: recalibra HX711 (`set_reference_unit`) según tu celda.
+- No carga el modelo: verifica `MODEL_PATH` y compatibilidad de `joblib/scikit-learn`.
 
 ## Notas
 
-* El modelo `.pkl` debe estar entrenado previamente.
-* Asegurarse de que los pines GPIO coincidan con la configuración física.
-* Sistema diseñado para uso académico / prototipo.
-* Fuera de Raspberry Pi, el sistema corre en modo simulado para facilitar pruebas de la interfaz y API.
+- Proyecto orientado a prototipo/uso académico.
+- Verifica que el pinout GPIO coincida con tu cableado real.
