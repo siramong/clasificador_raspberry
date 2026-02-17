@@ -162,13 +162,21 @@ function actualizar() {
             estado.innerText = "DETENIDO";
             estado.className = "badge inactivo";
         }
+    })
+    .catch(() => {
+        const estado = document.getElementById("estadoSistema");
+        estado.innerText = "SIN CONEXIÓN";
+        estado.className = "badge inactivo";
     });
 }
 
 function toggle() {
-    fetch('/toggle');
+    fetch('/toggle', { method: 'POST' })
+        .then(() => actualizar())
+        .catch(() => {});
 }
 
+actualizar();
 setInterval(actualizar, 1000);
 </script>
 

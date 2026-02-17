@@ -57,6 +57,13 @@ sudo systemctl start pigpiod
 python3 app.py
 ```
 
+Variables opcionales:
+
+```bash
+export CAMERA_INDEX=0
+export MODEL_PATH=modelo_plastico_vidrio.pkl
+```
+
 Acceder desde navegador en:
 
 ```
@@ -95,3 +102,4 @@ http://IP_RASPBERRY:5000
 * El modelo `.pkl` debe estar entrenado previamente.
 * Asegurarse de que los pines GPIO coincidan con la configuración física.
 * Sistema diseñado para uso académico / prototipo.
+* Fuera de Raspberry Pi, el sistema corre en modo simulado para facilitar pruebas de la interfaz y API.
