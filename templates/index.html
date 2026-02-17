@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Sistema Inteligente de Clasificación</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: #0f172a;
+            color: white;
+        }
+
+        header {
+            background: #111827;
+            padding: 20px;
+            text-align: center;
+            font-size: 22px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .card {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        }
+
+        .card h2 {
+            margin-top: 0;
+        }
+
+        img {
+            width: 100%;
+            border-radius: 12px;
+        }
+
+        .status {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .material {
+            font-size: 28px;
+            margin: 10px 0;
+        }
+
+        .counter {
+            font-size: 20px;
+            margin: 8px 0;
+        }
+
+        .badge {
+            padding: 6px 12px;
+            border-radius: 8px;
+        }
+
+        .activo {
+            background: #16a34a;
+        }
+
+        .inactivo {
+            background: #dc2626;
+        }
+
+        button {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            background: #2563eb;
+            color: white;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        footer {
+            text-align: center;
+            padding: 15px;
+            font-size: 12px;
+            color: #94a3b8;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    SISTEMA AUTOMÁTICO DE CLASIFICACIÓN DE MATERIALES
+</header>
+
+<div class="container">
+
+    <!-- Video -->
+    <div class="card">
+        <h2>Visión Artificial</h2>
+        <img src="/video">
+    </div>
+
+    <!-- Panel lateral -->
+    <div class="card">
+        <h2>Estado del Sistema</h2>
+
+        <div class="status">
+            Sistema:
+            <span id="estadoSistema" class="badge activo">ACTIVO</span>
+        </div>
+
+        <div class="material">
+            Material Detectado:
+            <div id="material">---</div>
+        </div>
+
+        <div>Peso actual: <strong><span id="peso">0</span> g</strong></div>
+
+        <hr>
+
+        <div class="counter">Plástico: <span id="plastico">0</span></div>
+        <div class="counter">Vidrio: <span id="vidrio">0</span></div>
+        <div class="counter">Metal: <span id="metal">0</span></div>
+
+        <button onclick="toggle()">Activar / Desactivar</button>
+    </div>
+
+</div>
+
+<footer>
+    Proyecto de Clasificación Inteligente - Raspberry Pi
+</footer>
+
+<script>
+function actualizar() {
+    fetch('/estado')
+    .then(res => res.json())
+    .then(data => {
+
+        document.getElementById("material").innerText = data.material;
+        document.getElementById("peso").innerText = data.peso;
+        document.getElementById("plastico").innerText = data.plastico;
+        document.getElementById("vidrio").innerText = data.vidrio;
+        document.getElementById("metal").innerText = data.metal;
+
+        const estado = document.getElementById("estadoSistema");
+
+        if (data.activo) {
+            estado.innerText = "ACTIVO";
+            estado.className = "badge activo";
+        } else {
+            estado.innerText = "DETENIDO";
+            estado.className = "badge inactivo";
+        }
+    });
+}
+
+function toggle() {
+    fetch('/toggle');
+}
+
+setInterval(actualizar, 1000);
+</script>
+
+</body>
+</html>
